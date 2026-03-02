@@ -15,6 +15,14 @@ public class DbService : IDbService {
     public async Task<List<Book>> GetAllBooksAsync(){
         return await _context.Books
             .AsNoTracking()
+            .Select(b => new Book
+            {
+                Id = b.Id,
+                Title = b.Title,
+                ISBN = b.ISBN,
+                PublicationYear = b.PublicationYear,
+                Authors = b.Authors.ToList()
+            })
             .ToListAsync();
     }
 
