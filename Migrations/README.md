@@ -11,4 +11,9 @@ Migration must be applied before deployment since it now loads the data of the a
 ### Decisions and tradeoffs
 For this migration, I added an authors table to the databse, and a join table to store the relatino between books and authors. For books that were already in the database before adding this change, I created an "unknown author" and linked it to all previously created books since from now on they will all have an author. I couldnt think of a way to ensure that a book needs to have an author on the database level, but that can be solved on the application by simply making sure that a book cant be created without an author in case I later neeed to add a "create book" endpoint. 
 
+## V003_remove_author_field -  Removed author column and field
+Simply removed the author field and volumns from Book, as it was unnecesary. Doesnt break anything.
+
+
+
 
