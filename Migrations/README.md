@@ -26,6 +26,16 @@ Since I made the new phone number field for members nullable, the members that a
 
 For the email requirement, I already had setup the emails as unique on the first schema. But if I did not do that then  I would have renamed the duplicate emails on the database, so for example for every duplicate email I would have used a query to simply add somthing to make it unique, inetad of anna@example.com it would have been anna@example.com+1 pr something similar. Then once the duplicates are renamed I would have added the unique index for emails.
 
+## V005_add_not_null_phone
+### Type:
+Requires coordination
+### API Impact:
+Api still remains unchanged as only a single change was made on the member entity.
+### Deployment notes
+Since now the member table enforces the phone number field, the migration would have to be applied after redeploying so the application can account for that.
+### Decisions and tradeoffs
+Now phones have been also enforced on the database, and since we allowed nullable phones to exist for a time, hopefully all previous members have also a phone number and nothing should break regarding this requirement.
+
 
 
 

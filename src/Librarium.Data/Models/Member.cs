@@ -9,7 +9,7 @@ public class Member {
 
     public string Email { get; set; } = null!;
 
-    public string? PhoneNumber { get; set; } 
+    public string PhoneNumber { get; set; } = null!;
 
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 }
