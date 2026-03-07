@@ -9,7 +9,7 @@ Api did not have to be changed since I used backwards compatibility. The fields 
 ### Deployment notes
 Migration must be applied before deployment since it now loads the data of the authors when loading books.
 ### Decisions and tradeoffs
-For this migration, I added an authors table to the databse, and a join table to store the relatino between books and authors. For books that were already in the database before adding this change, I created an "unknown author" and linked it to all previously created books since from now on they will all have an author. I couldnt think of a way to ensure that a book needs to have an author on the database level, but that can be solved by the application by simply making sure that a book cant be created without an author in case I later neeed to add a "create book" endpoint. 
+For this migration, I added an authors table to the databse, and a join table to store the relation between books and authors. For books that were already in the database before adding this change, I created an "unknown author" and linked it to all previously created books since from now on they will all have an author. I couldnt think of a way to ensure that a book needs to have an author on the database level, but that can be solved by the application by simply making sure that a book cant be created without an author in case I later need to add a "create book" endpoint. 
 
 ## V003_remove_author_field -  Removed author column and field
 Simply removed the author field and column from Book, as it was unnecesary. Doesnt break anything.
@@ -24,7 +24,7 @@ The migration needs to be applied before deployment since there is a new field f
 ### Decisions and tradeoffs
 Since I made the new phone number field for members nullable, the members that already exist dont have a sudden null field on their phone columns and older versions of the application can operate and prepare for a not null enforcement. So, after this migrations is applied, the members that were already on the database would have their phone numbers added manually, and new members should already be registered with a phone from now on. This basically splits this requirement into 2 migrations, this would be the "setup" migration and then once all pre existing members have a phone number we can change it to not null in the next migration so it is enforced on the database.
 
-For the email requirement, I already had setup the emails as unique on the first schema. But if I did not do that then  I would have renamed the duplicate emails on the database, so for example for every duplicate email I would have used a query to simply add somthing to make it unique, inetad of anna@example.com it would have been anna@example.com+1 pr something similar. Then once the duplicates are renamed I would have added the unique index for emails.
+For the email requirement, I already had setup the emails as unique on the first schema. But if I did not do that then  I would have renamed the duplicate emails on the database, so for example for every duplicate email I would have used a query to simply add somthing to make it unique, instead of anna@example.com it would have been anna@example.com+1 or something similar. Then once the duplicates are renamed I would have added the unique index for emails.
 
 ## V005_add_not_null_phone - Made the phone column nullable
 ### Type:
@@ -56,6 +56,21 @@ Migration can be applied before redeployment as the new column has a default val
 ### Decisions and tradeoffs
 Dev response:
 I accepted your proposal of simply adding a new column to use a IsDeleted flag (I changed the name to retired since it makes more sense as the book is not really deleted) since it solves the issue without having to delete anything and keeps existing books visible as they have a default false value . The filtering that you mentioned was also added on the dbService but only when retreiving books as we don't want retired books to show up on the catalogue. For loans, I did not apply filtering as we want to keep historical data and need those retired books to also show up when looking up a member's loans. Finally, the logic for loan creation was updated so it now rejects creating a loan for a retired book.   
+
+## V008_changeISBNType - Changed the type of the ISBN column
+### Type: 
+Requires coordination
+### API Impact:
+The ISBN field remains present in the endpoint for retreiving books to ensure compatibility. However, the value type changes from int to string. Since existing values are invalid and cant be recovered, they were replaced with a plcaeholder value during the migration. CLients relying on int ISBN values must update to acocunt for this change from now on.
+### Deployment notes
+The migration must be applied before deployment to ensure the entity model and database schema remain aligned. Since the column name remains inchanged at the end, older application versions should continue to function.
+### Decisions and tradeoffs
+Similar to the email requirement, I had already setup the ISBN as a string from the beggining, but we can simply imagine that the original ISBN column had integer as the type.
+This migration was executed like this:
+First I added a new column with text type (StringIsbn), then I populated it with a placeholder value since we cant recover the data. 
+Once that is done, i removed the old ISBN column (which we imagine has an int type), and once the is removed I renamed the new column to ISBN to maintain API stability as the Api will return the same name of the property.
+
+Since data already existed (and was corrupted) I couldnt simply change the type, thats why I took the approach of creating a new column and then rename it to the same name as the old one so that clients dont break. This placeholder value signals that the ISBN data is invalid and I assume that the ISBNs would have to be recoverd manually for pre existing books. The front end should also account for these changes and treat ISBN as a string from now on.
 
 
 
