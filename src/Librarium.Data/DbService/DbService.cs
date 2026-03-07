@@ -15,6 +15,7 @@ public class DbService : IDbService {
     public async Task<List<Book>> GetAllBooksAsync(){
         return await _context.Books
             .AsNoTracking()
+            .Where(b => !b.IsRetired)
             .Select(b => new Book
             {
                 Id = b.Id,
@@ -29,7 +30,7 @@ public class DbService : IDbService {
 
     public async Task<bool> BookExistsAsync(Guid bookId){
         return await _context.Books
-            .AnyAsync(b => b.Id == bookId);
+            .AnyAsync(b => b.Id == bookId && !b.IsRetired);
     }
 
     //MEMBERS
