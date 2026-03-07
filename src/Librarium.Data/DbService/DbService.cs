@@ -55,7 +55,8 @@ public class DbService : IDbService {
             MemberId = memberId,
             BookId = bookId,
             LoanDate = loanDate,
-            ReturnDate = null
+            ReturnDate = null,
+            Status = LoanStatus.Active // This will allow to set the status on the databse wihtout changing the dto, so the frontend is unaffected.
         };
 
         _context.Loans.Add(loan);

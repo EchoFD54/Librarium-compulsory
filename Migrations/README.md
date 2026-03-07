@@ -12,7 +12,7 @@ Migration must be applied before deployment since it now loads the data of the a
 For this migration, I added an authors table to the databse, and a join table to store the relatino between books and authors. For books that were already in the database before adding this change, I created an "unknown author" and linked it to all previously created books since from now on they will all have an author. I couldnt think of a way to ensure that a book needs to have an author on the database level, but that can be solved by the application by simply making sure that a book cant be created without an author in case I later neeed to add a "create book" endpoint. 
 
 ## V003_remove_author_field -  Removed author column and field
-Simply removed the author field and volumns from Book, as it was unnecesary. Doesnt break anything.
+Simply removed the author field and column from Book, as it was unnecesary. Doesnt break anything.
 
 ## V004_add_nullable_phone
 ### Type: 
@@ -35,6 +35,19 @@ Api still remains unchanged as only a single change was made on the member entit
 Since now the member table enforces the phone number field, the migration would have to be applied after redeploying so the application can account for that.
 ### Decisions and tradeoffs
 Now phones have been also enforced on the database, and since we allowed nullable phones to exist for a time, hopefully all previous members have also a phone number and nothing should break regarding this requirement.
+
+## V006_add_loan_status
+### Type:
+Additive (non-breaking)
+### API Impact:
+Since the loanDto was not changed, the Api does not need to be changed as the endpoint for getting loans for members will continue to return the returDate field as normal. The status will be set internally.
+### Deployment notes
+MIgration can be applied before redeploying as the new column is additive and doesnt break anything.
+### Decisions and tradeoffs
+For this requirement, I added the status column to the loans table, and mapped the returnDate value to a status, so pre existing loans with a null value will be set to active and those with a return date will be set to returned. This allows the frontend to continue working normally for the duration of the sprints as the dto that is read by the frontend remains unchanged and still contains the returnDate field. For new loans, the dbservice will map then to active as default when created.
+
+
+
 
 
 
